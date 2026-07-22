@@ -27,6 +27,11 @@ yarn-error.log*
 *.db
 *.db-journal
 
+# system reports & documentation artifacts
+system_status_report.md
+walkthrough.md
+implementation_plan.md
+
 # vercel
 .vercel
 

@@ -48,19 +48,20 @@ enum TicketCategory {
 }
 
 model Ticket {
-  id          String         @id @default(uuid())
-  title       String
-  description String
-  status      TicketStatus   @default(OPEN)
-  priority    TicketPriority @default(MEDIUM)
-  category    TicketCategory
-  creatorId   String
-  creator     User           @relation("CreatedTickets", fields: [creatorId], references: [id])
-  assigneeId  String?
-  assignee    User?          @relation("AssignedTickets", fields: [assigneeId], references: [id])
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  activities  Activity[]
+  id           String         @id @default(uuid())
+  ticketNumber Int            @default(autoincrement())
+  title        String
+  description  String
+  status       TicketStatus   @default(OPEN)
+  priority     TicketPriority @default(MEDIUM)
+  category     TicketCategory
+  creatorId    String
+  creator      User           @relation("CreatedTickets", fields: [creatorId], references: [id])
+  assigneeId   String?
+  assignee     User?          @relation("AssignedTickets", fields: [assigneeId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  activities   Activity[]
 }
 
 enum ActionType {
