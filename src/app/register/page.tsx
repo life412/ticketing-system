@@ -9,6 +9,7 @@ import { Ticket, Lock, Mail, User, Shield, Loader2, AlertCircle } from "lucide-r
 import { Role } from "@prisma/client";
 import { registerSchema, RegisterInput } from "@/lib/validations/auth";
 import { registerAction } from "@/actions/auth";
+import { getRoleDashboardRoute } from "@/lib/routes";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -39,10 +40,10 @@ export default function RegisterPage() {
 
     try {
       const result = await registerAction(data);
-      if (!result.success) {
+      if (!result.success || !result.user) {
         setServerError(result.error || "Registration failed. Please try again.");
       } else {
-        router.push("/dashboard");
+        router.push(getRoleDashboardRoute(result.user.role));
         router.refresh();
       }
     } catch (err) {
@@ -97,6 +98,7 @@ export default function RegisterPage() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 placeholder="name@company.com"
                 className="pl-9"
                 {...register("email")}
@@ -114,6 +116,7 @@ export default function RegisterPage() {
               <Input
                 id="password"
                 type="password"
+                autoComplete="new-password"
                 placeholder="Minimum 6 characters"
                 className="pl-9"
                 {...register("password")}

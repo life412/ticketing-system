@@ -9,6 +9,18 @@ function getJwtSecretKey(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
+function getRoleDashboardRoute(role?: string | null): string {
+  switch (role) {
+    case "MANAGER":
+      return "/dashboard/manager";
+    case "TECH":
+      return "/dashboard/tech";
+    case "EMPLOYEE":
+    default:
+      return "/dashboard/employee";
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
@@ -25,7 +37,6 @@ export async function middleware(request: NextRequest) {
         name?: string;
       };
     } catch (error) {
-      // Invalid or expired token
       user = null;
     }
   }
@@ -33,16 +44,40 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/register");
   const isProtectedRoute = pathname.startsWith("/dashboard");
 
-  // Redirect unauthenticated user trying to access protected routes
+  // 1. Unauthenticated users accessing protected routes -> redirect to /login
   if (isProtectedRoute && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect authenticated user trying to access login or register page
+  // 2. Authenticated users accessing login or register -> redirect to role dashboard
   if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const targetDashboard = getRoleDashboardRoute(user.role);
+    return NextResponse.redirect(new URL(targetDashboard, request.url));
+  }
+
+  // 3. Role-Based Access Control for /dashboard routes
+  if (user && isProtectedRoute) {
+    // If accessing /dashboard root -> redirect to user's role dashboard
+    if (pathname === "/dashboard" || pathname === "/dashboard/") {
+      return NextResponse.redirect(new URL(getRoleDashboardRoute(user.role), request.url));
+    }
+
+    // Protect /dashboard/manager
+    if (pathname.startsWith("/dashboard/manager") && user.role !== "MANAGER") {
+      return NextResponse.redirect(new URL(getRoleDashboardRoute(user.role), request.url));
+    }
+
+    // Protect /dashboard/tech
+    if (pathname.startsWith("/dashboard/tech") && user.role !== "TECH" && user.role !== "MANAGER") {
+      return NextResponse.redirect(new URL(getRoleDashboardRoute(user.role), request.url));
+    }
+
+    // Protect /dashboard/employee
+    if (pathname.startsWith("/dashboard/employee") && user.role !== "EMPLOYEE" && user.role !== "MANAGER") {
+      return NextResponse.redirect(new URL(getRoleDashboardRoute(user.role), request.url));
+    }
   }
 
   // Inject user details into request headers for downstream Server Components

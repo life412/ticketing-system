@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Ticket, Lock, Mail, Loader2, AlertCircle } from "lucide-react";
 import { loginSchema, LoginInput } from "@/lib/validations/auth";
 import { loginAction } from "@/actions/auth";
+import { getRoleDashboardRoute } from "@/lib/routes";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -38,10 +39,11 @@ function LoginForm() {
 
     try {
       const result = await loginAction(data);
-      if (!result.success) {
+      if (!result.success || !result.user) {
         setServerError(result.error || "Login failed. Please check your credentials.");
       } else {
-        router.push(callbackUrl);
+        const targetRoute = callbackUrl !== "/dashboard" ? callbackUrl : getRoleDashboardRoute(result.user.role);
+        router.push(targetRoute);
         router.refresh();
       }
     } catch (err) {
@@ -78,6 +80,7 @@ function LoginForm() {
             <Input
               id="email"
               type="email"
+              autoComplete="username"
               placeholder="name@company.com"
               className="pl-9"
               {...register("email")}
@@ -97,6 +100,7 @@ function LoginForm() {
             <Input
               id="password"
               type="password"
+              autoComplete="current-password"
               placeholder="••••••••"
               className="pl-9"
               {...register("password")}
