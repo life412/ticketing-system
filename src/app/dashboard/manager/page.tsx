@@ -38,6 +38,26 @@ export default async function ManagerDashboardPage() {
   const unassignedTickets = tickets.filter((t) => !t.assigneeId).length;
   const resolvedTickets = tickets.filter((t) => t.status === TicketStatus.RESOLVED || t.status === TicketStatus.CLOSED).length;
 
+  // Calculate Technician Workloads for the Availability Matrix
+  const technicianWorkloads = technicians.map((tech) => {
+    const activeTickets = tickets.filter(
+      (t) => t.assigneeId === tech.id && (t.status === TicketStatus.ASSIGNED || t.status === TicketStatus.IN_PROGRESS)
+    ).length;
+
+    let status = "Available";
+    if (activeTickets >= 3) {
+      status = "Max Capacity";
+    } else if (activeTickets > 0) {
+      status = "Busy";
+    }
+
+    return {
+      ...tech,
+      activeTickets,
+      status,
+    };
+  });
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       {/* Header Navigation */}
@@ -119,6 +139,7 @@ export default async function ManagerDashboardPage() {
         {/* Manager Ticket Client */}
         <ManagerTicketClient
           technicians={technicians}
+          technicianWorkloads={technicianWorkloads}
           initialTickets={tickets.map((t) => ({
             ...t,
             formattedId: formatTicketId(t.id),

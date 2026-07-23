@@ -10,11 +10,20 @@ import TechTicketClient from "./client";
 export default async function TechDashboardPage() {
   const user = await getCurrentUser();
 
+  const activeCount = await prisma.ticket.count({
+    where: {
+      assigneeId: user?.id,
+      status: { in: [TicketStatus.ASSIGNED, TicketStatus.IN_PROGRESS] },
+    },
+  });
+
+  const whereClause = activeCount > 0 
+    ? { assigneeId: user?.id }
+    : { OR: [{ assigneeId: user?.id }, { status: TicketStatus.OPEN, assigneeId: null }] };
+
   // Fetch tickets assigned to this technician or unassigned open tickets
   const tickets = await prisma.ticket.findMany({
-    where: {
-      OR: [{ assigneeId: user?.id }, { status: TicketStatus.OPEN }],
-    },
+    where: whereClause,
     include: {
       creator: { select: { id: true, name: true, email: true } },
       assignee: { select: { id: true, name: true, email: true } },

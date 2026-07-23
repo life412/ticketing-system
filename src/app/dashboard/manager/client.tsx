@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button";
 
 interface ManagerTicketClientProps {
   technicians: any[];
+  technicianWorkloads: any[];
   initialTickets: any[];
 }
 
-export default function ManagerTicketClient({ technicians, initialTickets }: ManagerTicketClientProps) {
+export default function ManagerTicketClient({ technicians, technicianWorkloads, initialTickets }: ManagerTicketClientProps) {
   const [tickets] = useState(initialTickets);
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
@@ -67,6 +68,32 @@ export default function ManagerTicketClient({ technicians, initialTickets }: Man
 
   return (
     <div className="space-y-6">
+      {/* Technician Availability Matrix */}
+      <div className="space-y-4 border-b border-slate-800 pb-6">
+        <h2 className="text-xl font-bold tracking-tight">Technician Availability Matrix</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {technicianWorkloads.map((tech) => (
+            <div key={tech.id} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-slate-100 text-sm">{tech.name || tech.email}</p>
+                <p className="text-xs text-slate-400">Active Tickets: {tech.activeTickets}</p>
+              </div>
+              <span
+                className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
+                  tech.status === "Available"
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                    : tech.status === "Busy"
+                    ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                    : "bg-red-500/10 text-red-400 border-red-500/20"
+                }`}
+              >
+                {tech.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
         <h2 className="text-xl font-bold tracking-tight">All System Tickets</h2>
       </div>

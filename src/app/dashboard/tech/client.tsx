@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { TicketStatus } from "@prisma/client";
-import { updateTicketStatus, addComment } from "@/actions/ticket";
-import { Play, CheckCircle2, MessageSquare, AlertCircle, Wrench } from "lucide-react";
+import { updateTicketStatus, addComment, claimTicket } from "@/actions/ticket";
+import { Play, CheckCircle2, MessageSquare, AlertCircle, Wrench, Hand } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -42,6 +42,20 @@ export default function TechTicketClient({ currentUserId, initialTickets }: Tech
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleClaim = async (ticketId: string) => {
+    setErrorMessage(null);
+    try {
+      const res = await claimTicket(ticketId);
+      if (res.success) {
+        window.location.reload();
+      } else {
+        setErrorMessage(res.error || "Failed to claim ticket.");
+      }
+    } catch (err) {
+      setErrorMessage("An unexpected error occurred.");
     }
   };
 
@@ -140,6 +154,16 @@ export default function TechTicketClient({ currentUserId, initialTickets }: Tech
                           </Button>
                         )}
                       </>
+                    )}
+
+                    {!isAssignedToMe && ticket.status === "OPEN" && !ticket.assigneeId && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleClaim(ticket.id)}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs h-8 gap-1"
+                      >
+                        <Hand className="h-3.5 w-3.5" /> Claim Ticket
+                      </Button>
                     )}
 
                     <Button

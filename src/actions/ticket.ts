@@ -14,6 +14,7 @@ import {
   UpdateTicketStatusInput,
   AddCommentInput,
 } from "@/lib/validations/ticket";
+import { z } from "zod";
 
 export interface TicketActionResult<T = unknown> {
   success: boolean;
@@ -271,6 +272,87 @@ export async function updateTicketStatus(
 }
 
 /**
+ * Server Action: Claim an unassigned ticket
+ * Authorization: Allowed for TECH only, and only if they have 0 active tickets.
+ */
+export async function claimTicket(ticketId: string): Promise<TicketActionResult> {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return { success: false, error: "Authentication required. Please sign in." };
+    }
+
+    if (currentUser.role !== Role.TECH) {
+      return { success: false, error: "Unauthorized. Only Technicians can claim tickets." };
+    }
+
+    // Check active workload
+    const activeTicketsCount = await prisma.ticket.count({
+      where: {
+        assigneeId: currentUser.id,
+        status: { in: [TicketStatus.ASSIGNED, TicketStatus.IN_PROGRESS] },
+      },
+    });
+
+    if (activeTicketsCount > 0) {
+      return {
+        success: false,
+        error: "You must resolve your current active tickets before claiming a new one.",
+      };
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+    });
+
+    if (!ticket) {
+      return { success: false, error: "Ticket not found." };
+    }
+
+    if (ticket.assigneeId || ticket.status !== TicketStatus.OPEN) {
+      return { success: false, error: "Ticket is already assigned or not open." };
+    }
+
+    const previousStatus = ticket.status;
+
+    const updatedTicket = await prisma.$transaction(async (tx) => {
+      const updated = await tx.ticket.update({
+        where: { id: ticketId },
+        data: {
+          assigneeId: currentUser.id,
+          status: TicketStatus.ASSIGNED,
+        },
+      });
+
+      await tx.activity.create({
+        data: {
+          ticketId,
+          userId: currentUser.id,
+          actionType: ActionType.ASSIGNMENT,
+          previousStatus,
+          newStatus: TicketStatus.ASSIGNED,
+          text: `Technician claimed ticket`,
+        },
+      });
+
+      return updated;
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/tickets");
+    revalidatePath(`/tickets/${ticketId}`);
+
+    return { success: true, data: updatedTicket };
+  } catch (error) {
+    console.error("claimTicket error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to claim ticket.",
+    };
+  }
+}
+
+/**
  * Server Action: Add a comment/activity to a ticket
  * Authorization: Allowed for users associated with the ticket (Creator, Assignee, or MANAGER)
  */
@@ -346,9 +428,20 @@ export async function getTickets() {
   if (currentUser.role === Role.EMPLOYEE) {
     whereClause = { creatorId: currentUser.id };
   } else if (currentUser.role === Role.TECH) {
-    whereClause = {
-      OR: [{ assigneeId: currentUser.id }, { status: TicketStatus.OPEN }],
-    };
+    const activeCount = await prisma.ticket.count({
+      where: {
+        assigneeId: currentUser.id,
+        status: { in: [TicketStatus.ASSIGNED, TicketStatus.IN_PROGRESS] },
+      },
+    });
+
+    if (activeCount > 0) {
+      whereClause = { assigneeId: currentUser.id };
+    } else {
+      whereClause = {
+        OR: [{ assigneeId: currentUser.id }, { status: TicketStatus.OPEN, assigneeId: null }],
+      };
+    }
   }
   // MANAGER sees all tickets
 
