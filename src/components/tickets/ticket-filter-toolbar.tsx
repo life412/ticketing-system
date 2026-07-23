@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { TicketStatus, TicketPriority, TicketCategory } from "@prisma/client";
-import { Search, RotateCcw, Filter, ArrowUpDown } from "lucide-react";
+import { Search, RotateCcw, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 

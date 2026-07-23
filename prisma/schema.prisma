@@ -49,7 +49,7 @@ enum TicketCategory {
 
 model Ticket {
   id           String         @id @default(uuid())
-  ticketNumber Int            @default(autoincrement())
+  ticketNumber Int            @default(autoincrement()) @unique
   title        String
   description  String
   status       TicketStatus   @default(OPEN)

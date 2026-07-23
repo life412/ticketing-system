@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TicketPriority, TicketCategory, TicketStatus } from "@prisma/client";
+import type { TicketPriority, TicketCategory, TicketStatus } from "@prisma/client";
 import { createTicketSchema, CreateTicketInput } from "@/lib/validations/ticket";
 import { createTicket, updateTicketStatus, addComment } from "@/actions/ticket";
 import { PlusCircle, Loader2, AlertCircle, MessageSquare, CheckCircle2, Tag } from "lucide-react";
@@ -33,8 +33,8 @@ export default function EmployeeTicketClient({ initialTickets }: EmployeeTicketC
     defaultValues: {
       title: "",
       description: "",
-      priority: TicketPriority.MEDIUM,
-      category: TicketCategory.IT_SUPPORT,
+      priority: "MEDIUM" as TicketPriority,
+      category: "IT_SUPPORT" as TicketCategory,
     },
   });
 
@@ -60,7 +60,7 @@ export default function EmployeeTicketClient({ initialTickets }: EmployeeTicketC
 
   const handleCloseTicket = async (ticketId: string) => {
     try {
-      const res = await updateTicketStatus({ ticketId, newStatus: TicketStatus.CLOSED });
+      const res = await updateTicketStatus({ ticketId, newStatus: "CLOSED" as TicketStatus });
       if (res.success) {
         window.location.reload();
       }
@@ -127,10 +127,10 @@ export default function EmployeeTicketClient({ initialTickets }: EmployeeTicketC
                   {...register("category")}
                   className="flex h-10 w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
                 >
-                  <option value={TicketCategory.IT_SUPPORT}>IT Support</option>
-                  <option value={TicketCategory.FACILITIES}>Facilities</option>
-                  <option value={TicketCategory.HR}>HR</option>
-                  <option value={TicketCategory.OTHER}>Other</option>
+                  <option value={"IT_SUPPORT"}>IT Support</option>
+                  <option value={"FACILITIES"}>Facilities</option>
+                  <option value={"HR"}>HR</option>
+                  <option value={"OTHER"}>Other</option>
                 </select>
               </div>
 
@@ -141,10 +141,10 @@ export default function EmployeeTicketClient({ initialTickets }: EmployeeTicketC
                   {...register("priority")}
                   className="flex h-10 w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
                 >
-                  <option value={TicketPriority.LOW}>Low</option>
-                  <option value={TicketPriority.MEDIUM}>Medium</option>
-                  <option value={TicketPriority.HIGH}>High</option>
-                  <option value={TicketPriority.CRITICAL}>Critical</option>
+                  <option value={"LOW"}>Low</option>
+                  <option value={"MEDIUM"}>Medium</option>
+                  <option value={"HIGH"}>High</option>
+                  <option value={"CRITICAL"}>Critical</option>
                 </select>
               </div>
             </div>
@@ -208,9 +208,9 @@ export default function EmployeeTicketClient({ initialTickets }: EmployeeTicketC
                   </span>
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                      ticket.status === TicketStatus.RESOLVED
+                      ticket.status === "RESOLVED"
                         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : ticket.status === TicketStatus.CLOSED
+                        : ticket.status === "CLOSED"
                         ? "bg-slate-800 text-slate-400 border-slate-700"
                         : "bg-amber-500/10 text-amber-400 border-amber-500/20"
                     }`}
@@ -231,7 +231,7 @@ export default function EmployeeTicketClient({ initialTickets }: EmployeeTicketC
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {ticket.status === TicketStatus.RESOLVED && (
+                  {ticket.status === "RESOLVED" && (
                     <Button
                       size="sm"
                       onClick={() => handleCloseTicket(ticket.id)}

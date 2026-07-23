@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TicketStatus } from "@prisma/client";
+import type { TicketStatus } from "@prisma/client";
 import { formatTicketId } from "@/lib/utils";
 import { updateTicketStatus } from "@/actions/ticket";
 import { Ticket, CheckCircle2, Clock, PlusCircle, AlertCircle, FileText } from "lucide-react";
@@ -20,7 +20,7 @@ export default function EmployeeView({ stats, myTickets }: EmployeeViewProps) {
 
   const handleConfirmClose = async (ticketId: string) => {
     try {
-      const res = await updateTicketStatus({ ticketId, newStatus: TicketStatus.CLOSED });
+      const res = await updateTicketStatus({ ticketId, newStatus: "CLOSED" as TicketStatus });
       if (res.success) {
         window.location.reload();
       }
@@ -108,7 +108,7 @@ export default function EmployeeView({ stats, myTickets }: EmployeeViewProps) {
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  {ticket.status === TicketStatus.RESOLVED && (
+                  {ticket.status === "RESOLVED" && (
                     <Button
                       size="sm"
                       onClick={() => handleConfirmClose(ticket.id)}
@@ -120,9 +120,9 @@ export default function EmployeeView({ stats, myTickets }: EmployeeViewProps) {
 
                   <span
                     className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
-                      ticket.status === TicketStatus.RESOLVED
+                      ticket.status === "RESOLVED"
                         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : ticket.status === TicketStatus.CLOSED
+                        : ticket.status === "CLOSED"
                         ? "bg-slate-800 text-slate-400 border-slate-700"
                         : "bg-amber-500/10 text-amber-400 border-amber-500/20"
                     }`}

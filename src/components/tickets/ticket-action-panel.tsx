@@ -9,11 +9,7 @@ import {
   Play,
   CheckCircle2,
   AlertCircle,
-  Clock,
-  User,
   Shield,
-  Tag,
-  Flame,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TicketStatus } from "@prisma/client";
+import type { TicketStatus } from "@prisma/client";
 import { updateTicketStatus, addComment } from "@/actions/ticket";
 import { Play, CheckCircle2, MessageSquare, AlertCircle, Wrench } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -97,9 +97,9 @@ export default function TechTicketClient({ currentUserId, initialTickets }: Tech
                     </span>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                        ticket.status === TicketStatus.RESOLVED
+                        ticket.status === "RESOLVED"
                           ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                          : ticket.status === TicketStatus.IN_PROGRESS
+                          : ticket.status === "IN_PROGRESS"
                           ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
                           : "bg-amber-500/10 text-amber-400 border-amber-500/20"
                       }`}
@@ -120,20 +120,20 @@ export default function TechTicketClient({ currentUserId, initialTickets }: Tech
                     {/* Status Action Buttons for Technician */}
                     {isAssignedToMe && (
                       <>
-                        {ticket.status === TicketStatus.ASSIGNED && (
+                        {ticket.status === "ASSIGNED" && (
                           <Button
                             size="sm"
-                            onClick={() => handleStatusChange(ticket.id, TicketStatus.IN_PROGRESS)}
+                            onClick={() => handleStatusChange(ticket.id, "IN_PROGRESS" as TicketStatus)}
                             className="bg-blue-600 hover:bg-blue-500 text-white text-xs h-8 gap-1"
                           >
                             <Play className="h-3.5 w-3.5" /> Start Work (In Progress)
                           </Button>
                         )}
 
-                        {ticket.status === TicketStatus.IN_PROGRESS && (
+                        {ticket.status === "IN_PROGRESS" && (
                           <Button
                             size="sm"
-                            onClick={() => handleStatusChange(ticket.id, TicketStatus.RESOLVED)}
+                            onClick={() => handleStatusChange(ticket.id, "RESOLVED" as TicketStatus)}
                             className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-8 gap-1"
                           >
                             <CheckCircle2 className="h-3.5 w-3.5" /> Mark Resolved

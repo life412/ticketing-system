@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TicketStatus } from "@prisma/client";
+import type { TicketStatus } from "@prisma/client";
 import { assignTicket, updateTicketStatus, addComment } from "@/actions/ticket";
 import { UserCheck, Shield, MessageSquare, AlertCircle, Ticket as TicketIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -110,9 +110,9 @@ export default function ManagerTicketClient({ technicians, initialTickets }: Man
                   </span>
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                      ticket.status === TicketStatus.RESOLVED || ticket.status === TicketStatus.CLOSED
+                      ticket.status === "RESOLVED" || ticket.status === "CLOSED"
                         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : ticket.status === TicketStatus.IN_PROGRESS
+                        : ticket.status === "IN_PROGRESS"
                         ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
                         : "bg-amber-500/10 text-amber-400 border-amber-500/20"
                     }`}
@@ -166,11 +166,11 @@ export default function ManagerTicketClient({ technicians, initialTickets }: Man
                     onChange={(e) => handleStatusOverride(ticket.id, e.target.value as TicketStatus)}
                     className="h-8 rounded-md border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500"
                   >
-                    <option value={TicketStatus.OPEN}>OPEN</option>
-                    <option value={TicketStatus.ASSIGNED}>ASSIGNED</option>
-                    <option value={TicketStatus.IN_PROGRESS}>IN_PROGRESS</option>
-                    <option value={TicketStatus.RESOLVED}>RESOLVED</option>
-                    <option value={TicketStatus.CLOSED}>CLOSED</option>
+                    <option value="OPEN">OPEN</option>
+                    <option value="ASSIGNED">ASSIGNED</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="RESOLVED">RESOLVED</option>
+                    <option value="CLOSED">CLOSED</option>
                   </select>
 
                   <Button

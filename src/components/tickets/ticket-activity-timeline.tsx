@@ -2,7 +2,6 @@
 
 import { ActionType, TicketStatus } from "@prisma/client";
 import {
-  MessageSquare,
   UserCheck,
   RefreshCw,
   Play,
@@ -10,7 +9,6 @@ import {
   Lock,
   PlusCircle,
   Clock,
-  Shield,
 } from "lucide-react";
 
 interface ActivityTimelineProps {

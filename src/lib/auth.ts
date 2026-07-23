@@ -99,5 +99,20 @@ export async function getCurrentUser(): Promise<UserJwtPayload | null> {
   // Fallback to verifying cookie directly
   const token = await getAuthCookie();
   if (!token) return null;
-  return await verifyJWT(token);
+  const decoded = await verifyJWT(token);
+  if (!decoded) return null;
+
+  // Optional: verify user exists in DB to prevent foreign key errors if DB was wiped
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    const dbUser = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: { id: true },
+    });
+    if (!dbUser) return null;
+  } catch (e) {
+    // Ignore db errors and proceed with jwt if prisma fails to load
+  }
+
+  return decoded;
 }

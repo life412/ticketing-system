@@ -13,7 +13,7 @@ export default function Home() {
         </h1>
         
         <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-          Built with Next.js 14, App Router, Prisma, PostgreSQL, Tailwind CSS, and shadcn/ui.
+          A robust internal platform designed to streamline IT support requests, manage cross-departmental workflows, and ensure timely resolution of all technical issues.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 text-left">
