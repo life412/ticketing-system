@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Ticket, Lock, Mail, User, Shield, Loader2, AlertCircle } from "lucide-react";
+import { Ticket, Lock, Mail, User, Shield, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Role } from "@prisma/client";
 import { registerSchema, RegisterInput } from "@/lib/validations/auth";
 import { registerAction } from "@/actions/auth";
@@ -19,6 +19,7 @@ export default function RegisterPage() {
 
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -115,12 +116,20 @@ export default function RegisterPage() {
               <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="Minimum 6 characters"
-                className="pl-9"
+                className="pl-9 pr-10"
                 {...register("password")}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
             {errors.password && (
               <p className="text-xs text-red-400">{errors.password.message}</p>

@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { TicketStatus, TicketPriority, TicketCategory } from "@prisma/client";
-import { Search, RotateCcw, Filter } from "lucide-react";
+import { Search, RotateCcw, Filter, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +20,7 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
   const [priority, setPriority] = useState(searchParams.get("priority") || "");
   const [category, setCategory] = useState(searchParams.get("category") || "");
   const [assignedTo, setAssignedTo] = useState(searchParams.get("assignedTo") || "");
+  const [sort, setSort] = useState(searchParams.get("sort") || "newest");
 
   const updateFilters = useCallback(
     (newParams: Record<string, string>) => {
@@ -38,7 +39,7 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateFilters({ query, status, priority, category, assignedTo });
+    updateFilters({ query, status, priority, category, assignedTo, sort });
   };
 
   const handleReset = () => {
@@ -47,6 +48,7 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
     setPriority("");
     setCategory("");
     setAssignedTo("");
+    setSort("newest");
     router.push("/tickets");
   };
 
@@ -55,11 +57,13 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
       onSubmit={handleSearchSubmit}
       className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 shadow-md space-y-4 backdrop-blur-md"
     >
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800/60 pb-2">
-        <Filter className="h-3.5 w-3.5 text-blue-400" /> Filter & Search Parameters
+      <div className="flex items-center justify-between border-b border-slate-800/60 pb-2">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <Filter className="h-3.5 w-3.5 text-blue-400" /> Filter & Search Parameters
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
         {/* Search Input */}
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
@@ -76,7 +80,7 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
           value={status}
           onChange={(e) => {
             setStatus(e.target.value);
-            updateFilters({ query, status: e.target.value, priority, category, assignedTo });
+            updateFilters({ query, status: e.target.value, priority, category, assignedTo, sort });
           }}
           className="h-10 rounded-md border border-slate-800 bg-slate-950/80 px-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
         >
@@ -93,7 +97,7 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
           value={priority}
           onChange={(e) => {
             setPriority(e.target.value);
-            updateFilters({ query, status, priority: e.target.value, category, assignedTo });
+            updateFilters({ query, status, priority: e.target.value, category, assignedTo, sort });
           }}
           className="h-10 rounded-md border border-slate-800 bg-slate-950/80 px-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
         >
@@ -109,7 +113,7 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
           value={category}
           onChange={(e) => {
             setCategory(e.target.value);
-            updateFilters({ query, status, priority, category: e.target.value, assignedTo });
+            updateFilters({ query, status, priority, category: e.target.value, assignedTo, sort });
           }}
           className="h-10 rounded-md border border-slate-800 bg-slate-950/80 px-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
         >
@@ -125,7 +129,7 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
           value={assignedTo}
           onChange={(e) => {
             setAssignedTo(e.target.value);
-            updateFilters({ query, status, priority, category, assignedTo: e.target.value });
+            updateFilters({ query, status, priority, category, assignedTo: e.target.value, sort });
           }}
           className="h-10 rounded-md border border-slate-800 bg-slate-950/80 px-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
         >
@@ -136,6 +140,21 @@ export default function TicketFilterToolbar({ technicians }: FilterToolbarProps)
               {tech.name || tech.email}
             </option>
           ))}
+        </select>
+
+        {/* Sort By Dropdown */}
+        <select
+          value={sort}
+          onChange={(e) => {
+            setSort(e.target.value);
+            updateFilters({ query, status, priority, category, assignedTo, sort: e.target.value });
+          }}
+          className="h-10 rounded-md border border-slate-800 bg-slate-950/80 px-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+        >
+          <option value="newest">Sort: Newest First</option>
+          <option value="oldest">Sort: Oldest First</option>
+          <option value="priority">Sort: Priority</option>
+          <option value="status">Sort: Status</option>
         </select>
       </div>
 

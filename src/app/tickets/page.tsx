@@ -66,19 +66,29 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
     };
   }
 
+  // Construct orderBy sorting
+  let orderBy: any = { createdAt: "desc" };
+  if (searchParams.sort === "oldest") {
+    orderBy = { createdAt: "asc" };
+  } else if (searchParams.sort === "priority") {
+    orderBy = { priority: "desc" };
+  } else if (searchParams.sort === "status") {
+    orderBy = { status: "asc" };
+  }
+
   // Combine RBAC where & searchParams filters
   const finalWhere = {
     AND: [rbacWhere, filterWhere],
   };
 
-  // Fetch filtered tickets
+  // Fetch filtered & sorted tickets
   const tickets = await prisma.ticket.findMany({
     where: finalWhere,
     include: {
       creator: { select: { id: true, name: true, email: true, role: true } },
       assignee: { select: { id: true, name: true, email: true, role: true } },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy,
   });
 
   // Fetch technicians list for filter dropdown

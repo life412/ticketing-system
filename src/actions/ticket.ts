@@ -152,8 +152,8 @@ export async function assignTicket(input: AssignTicketInput): Promise<TicketActi
     });
 
     revalidatePath("/dashboard");
-    revalidatePath(`/dashboard/tickets/${ticketId}`);
     revalidatePath("/tickets");
+    revalidatePath(`/tickets/${ticketId}`);
 
     return { success: true, data: updatedTicket };
   } catch (error) {
@@ -257,8 +257,8 @@ export async function updateTicketStatus(
     });
 
     revalidatePath("/dashboard");
-    revalidatePath(`/dashboard/tickets/${ticketId}`);
     revalidatePath("/tickets");
+    revalidatePath(`/tickets/${ticketId}`);
 
     return { success: true, data: updatedTicket };
   } catch (error) {
@@ -321,8 +321,8 @@ export async function addComment(input: AddCommentInput): Promise<TicketActionRe
     });
 
     revalidatePath("/dashboard");
-    revalidatePath(`/dashboard/tickets/${ticketId}`);
     revalidatePath("/tickets");
+    revalidatePath(`/tickets/${ticketId}`);
 
     return { success: true, data: activity };
   } catch (error) {
